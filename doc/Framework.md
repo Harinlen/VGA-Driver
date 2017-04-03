@@ -1,1 +1,1 @@
-![Framework Image](https://raw.githubusercontent.com/Harinlen/FPGA_VGA/master/doc/Framework.svg)
+![Framework Image](https://rawgithub.com/Harinlen/FPGA_VGA/master/doc/Framework.svg)
