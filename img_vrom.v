@@ -3,9 +3,13 @@ input wire [7:0] pixel_addr,
 input wire [2:0] image_index,
 output reg [2:0] pixel_data);
 
+reg [2:0] current_image;
+
 always @(*) begin
+	//Sync the current image.
+	current_image = image_index;
 	//Get the image index.
-	case (image_index)
+	case (current_image)
 		// Image #0
 		0: case (pixel_addr)
 			0	: pixel_data = 3'b111;
