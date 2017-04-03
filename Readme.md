@@ -4,7 +4,7 @@ Just an average guy who serves an average assignment.
 
 ## You have to know
 
-This project is designed based on the requirement for function 4, which will use the container framework to organize function 1 to function 3. If you want to provide any pull request, please based on the current framework. I will upload documentation soon.
+This project is designed based on the requirement for function 4, which will use the container framework to organize function 1 to function 3. If you want to provide any pull request, please based on the current framework. If you have no idea with the source code, please check the [Documentation](doc/Home.md) to get start with.
 
 ## Preparations
 
