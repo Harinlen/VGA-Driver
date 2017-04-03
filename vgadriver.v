@@ -29,6 +29,7 @@ wire f1_keyproc_write;
 wire [2:0] f2_instruction, f2_image_index, f2_gpu_read_color, f2_gpu_display_color;
 wire [7:0] f2_gpu_read_addr;
 wire [19:0] f2_gpu_display_addr;
+wire f2_keyproc_set;
 //Container to VGA output.
 // Wires
 wire [2:0] container_write_color;
@@ -56,9 +57,10 @@ f2_keyproc function2_keyproc(
 .North(North),
 .South(South),
 .sysclk(sysclk),
+.set(f2_keyproc_set),
 .instruction(f2_instruction));
 
-f2_vram function2_ram(
+img_vrom image_rom(
 .pixel_addr(f2_gpu_read_addr),
 .image_index(f2_image_index),
 .pixel_data(f2_gpu_read_color));
@@ -66,6 +68,7 @@ f2_vram function2_ram(
 f2_gpu function2_gpu(
 .sysclk(sysclk),
 .instruction(f2_instruction),
+.set(f2_keyproc_set),
 .display_addr(f2_gpu_display_addr),
 .pixel_data(f2_gpu_read_color),
 .pixel_addr(f2_gpu_read_addr),

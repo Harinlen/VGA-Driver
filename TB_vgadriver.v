@@ -70,10 +70,14 @@ initial begin
 		#2; change_button=0;
 		#2; change_button=1;
 		#2; change_button=0;
-		#3; South=1;
-		#5; South=0;
-		#3; East=1;
-		#5; East=0;
+		// #3; East=1;
+		// #2; East=0;
+		// #3; West=1;
+		// #2; West=0;
+		#5; North=1;
+		#2; North=0;
+		#5; South=1;
+		#2; South=0;
 		#3000; $finish;  // terminates simulation
 end
 

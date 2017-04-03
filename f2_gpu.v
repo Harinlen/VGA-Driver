@@ -1,6 +1,7 @@
-`define MAX_IMAGE_INDEX 1
+`include "constant.v"
 module f2_gpu(
 input wire [2:0] instruction,
+input wire set,
 input wire [19:0] display_addr,
 input wire [2:0] pixel_data,
 input wire sysclk,
@@ -10,6 +11,7 @@ output reg [2:0] display_data);
 
 reg [9:0] display_x, display_y;
 reg [3:0] pixel_x, pixel_y;
+reg [1:0] trans_mode;
 reg [7:0] anime_pixel_index;
 reg [2:0] current_image;
 reg [2:0] command;
@@ -24,19 +26,73 @@ initial begin
 	pixel_y = 4'b0;
 	// Reset working state.
 	state = 0;
+	// Reset the transform mode.
+	trans_mode = 2'b00;
 	// Reset the negative state.
 	negative = 0;
 	// Reset animation parameter.
 	anime_pixel_index = 8'b0;
 	current_image = 0;
-	delay_counter = 0;
+	delay_counter = 4'b1111;
 	// Reset the command.
 	command=3'b0;
 end
 
+always @(posedge set) begin
+	// Check state.
+	if (!state) begin
+		// Save the current instruction.
+		command = instruction;
+		// Change the state to working.
+		state = 1;
+	end
+	//Check the state.
+	if (state) begin
+		case (command)
+			0: begin //For None command, ignore the operation.
+				state = 1'b0;
+			end
+			1: begin // Move forward.
+				//Reset rotation.
+				trans_mode = 2'b00;
+				//Reset nagative.
+				negative = 0;
+				//Check the image index, move to the previous image.
+				if (current_image == 0)
+					current_image = `MAX_IMAGE_INDEX;
+				else
+					current_image = current_image - 1;
+			end
+			2: begin // Move backward.
+				//Reset rotation.
+				trans_mode = 2'b00;
+				//Reset nagative.
+				negative = 0;
+				//Check the image index, move to the next image.
+				if (current_image == `MAX_IMAGE_INDEX)
+					current_image = 0;
+				else
+					current_image = current_image + 1;
+			end
+			3: begin // Rotate.
+				//Reset rotation.
+				trans_mode = trans_mode + 1;
+				//Clear the state.
+				state = 1'b0;
+			end
+			4: begin // Negative
+				// Change the negative state.
+				negative = ~negative;
+				//Clear the state.
+				state = 1'b0;
+			end
+		endcase
+	end
+end
+
 always @(posedge sysclk) begin
-	if (delay_counter == 0)
-		if (state) begin
+	if (state) begin
+		if (delay_counter == 0)
 			case (command)
 				1: begin 
 					//Moving forward.
@@ -59,48 +115,11 @@ always @(posedge sysclk) begin
 					end
 				end
 			endcase
-		end
-	delay_counter <= delay_counter + 1;
+		delay_counter <= delay_counter + 1;
+	end
 end
 
 always @(*) begin
-	// Check state.
-	if (!state) begin
-		// Save the current instruction.
-		command = instruction;
-		// Change the state to working.
-		state = 1'b1;
-	end
-	//Check the state.
-	if (state) begin
-		case (command)
-			0: begin //For None command, ignore the operation.
-				state = 1'b0;
-				//Reset nagative.
-				negative = 0;
-			end
-			1: begin // Move forward.
-				if (current_image == 0)
-					current_image = 1;
-				else
-					current_image = current_image - 1;
-			end
-			2: begin // Move backward.
-				if (current_image == 1)
-					current_image = 0;
-				else
-					current_image = current_image + 1;
-			end
-			4: begin // Negative
-				// Change the negative state.
-				negative = 1;
-				//Clear the state.
-				state = 1'b0;
-			end
-		endcase
-		
-	end
-	
 	// Get the pixel position on the display.
 	display_x = display_addr[19:10];
 	display_y = display_addr[9:0];
@@ -170,23 +189,28 @@ always @(*) begin
 		pixel_y = 14;
 	else if (pixel_y < 487)
 		pixel_y = 15;
-		
+	
 	//Set the pixel addr.
-	pixel_addr = {pixel_x, pixel_y};
+	case (trans_mode)
+		0: pixel_addr = {pixel_x, pixel_y};
+		1: pixel_addr = {pixel_y, 4'd`MAX_IMAGE_SIZE - pixel_x};
+		2: pixel_addr = {4'd`MAX_IMAGE_SIZE - pixel_x, 4'd`MAX_IMAGE_SIZE - pixel_y};
+		3: pixel_addr = {4'd`MAX_IMAGE_SIZE - pixel_y, pixel_x};
+	endcase
 	//Set the image index.
 	if (state)
 		if (pixel_addr < anime_pixel_index)
 			// Previous image, this should depend on the command
 			if (command == 1)
 				// Move previous, its image should be the next one.
-				if (current_image == 1)
+				if (current_image == `MAX_IMAGE_INDEX)
 					image_index = 0;
 				else
 					image_index = current_image + 1;
 			else
 				// Move next, its pirevous image should be the previous one.
 				if (current_image == 0)
-					image_index = 1;
+					image_index = `MAX_IMAGE_INDEX;
 				else
 					image_index = current_image - 1;
 		else
