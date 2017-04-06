@@ -1,16 +1,14 @@
 module f1_keyproc(
-input wire R,
-input wire G,
-input wire B,
-input wire set,
+input wire [3:0] func1_keys,
 input wire sysclk,
 output reg [2:0] color,
 output reg write);
 
 always @(posedge sysclk) begin
-	if (set) begin
+	if (func1_keys[0]) begin
 		write <= 1'b1;
-		color <= {{R, G}, B};
+		// The keys is right in RGB mode, output the data
+		color <= func1_keys[3:1];
 	end
 	else
 		write <= 1'b0;

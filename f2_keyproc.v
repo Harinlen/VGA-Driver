@@ -1,10 +1,7 @@
 module f2_keyproc(
-input wire East,
-input wire West,
-input wire North,
-input wire South,
+input wire [3:0] func2_keys,
 input wire sysclk,
-output reg set,
+output reg write,
 output reg [2:0] instruction);
 
 //Defines the instruction for function 2.
@@ -15,30 +12,33 @@ output reg [2:0] instruction);
 // 4 = Nevigate
 
 initial begin
+	// Clear the instruction output.
 	instruction = 3'd0;
-	set = 0;
+	// Reset the set to no.
+	write = 0;
 end
 
 always @(posedge sysclk) begin
-	if (East) begin
+	// Check all the keys and translate to func2 GPU instruction.
+	if (func2_keys[3]) begin
 		instruction <= 3'd1;
-		set <= 1;
+		write <= 1;
 	end
-	else if (West) begin
+	else if (func2_keys[2]) begin
 		instruction <= 3'd2;
-		set <= 1;
+		write <= 1;
 	end
-	else if (North) begin
+	else if (func2_keys[1]) begin
 		instruction <= 3'd3;
-		set <= 1;
+		write <= 1;
 	end
-	else if (South) begin
+	else if (func2_keys[0]) begin
 		instruction <= 3'd4;
-		set <= 1;
+		write <= 1;
 	end
 	else begin
 		instruction <= 3'd0;
-		set <= 0;
+		write <= 0;
 	end
 end
 

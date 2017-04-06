@@ -1,2 +1,5 @@
 # Compiled verilog
 a.out
+
+# Mac OS X caches.
+.DS_Store
