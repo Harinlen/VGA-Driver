@@ -29,7 +29,7 @@ wire [2:0] func1_color;
 wire func1_write;
 
 // Function 2 chips.
-wire [19:0] func2_addr_in;
+wire [21:0] func2_addr_in;
 wire [3:0] func2_keys;
 wire [2:0] func2_instruction, func2_color_out;
 wire func2_write;
@@ -40,7 +40,7 @@ wire [7:0] vram_addr_in;
 
 // VGA port.
 wire [2:0] vga_color;
-wire [19:0] vga_addr;
+wire [21:0] vga_addr;
 
 // Keyboard chips.
 keyboard_proc keyboard_processor(

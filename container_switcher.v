@@ -1,9 +1,9 @@
 module container_switcher(
 input wire [1:0] current_function,
-input wire [19:0] display_addr,
+input wire [21:0] display_addr,
 input wire [2:0] func1_color,
 input wire [2:0] func2_color,
-output reg [19:0] func2_addr,
+output reg [21:0] func2_addr,
 output reg [2:0] display_color);
 
 always @(*) begin

@@ -2,7 +2,7 @@ module vgaout(
 input wire sysclk,
 input wire [2:0] pixel_data,
 input wire rst,
-output reg [19:0] pixel_addr,
+output reg [21:0] pixel_addr,
 output wire VGA_R,
 output wire VGA_G,
 output wire VGA_B,

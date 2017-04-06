@@ -2,40 +2,44 @@
 module f2_gpu(
 input wire [2:0] instruction,
 input wire set,
-input wire [19:0] display_addr,
+input wire [21:0] display_addr,
 input wire [2:0] pixel_data,
 input wire sysclk,
 output reg [7:0] pixel_addr,
 output reg [2:0] image_index,
 output reg [2:0] display_data);
 
-reg [9:0] display_x, display_y;
+reg [10:0] display_x, display_y;
 reg [3:0] pixel_x, pixel_y;
 reg [1:0] trans_mode;
 reg [7:0] anime_pixel_index;
 reg [2:0] current_image;
 reg [2:0] command;
 reg [3:0] delay_counter;
-reg state, negative;
+reg state, negative, is_display;
 
 initial begin
 	// Display parameter
-	display_x = 10'b0;
-	display_y = 10'b1;
-	pixel_x = 4'b0;
-	pixel_y = 4'b0;
+	display_x = 0;
+	display_y = 0;
+	pixel_x = 0;
+	pixel_y = 0;
 	// Reset working state.
 	state = 0;
 	// Reset the transform mode.
 	trans_mode = 2'b00;
 	// Reset the negative state.
 	negative = 0;
+	// Reset display parameter.
+	is_display = 0;
 	// Reset animation parameter.
 	anime_pixel_index = 8'b0;
 	current_image = 0;
 	delay_counter = 4'b1111;
 	// Reset the running instruction, which named command here.
 	command = 3'b000;
+	// Clear the output data.
+	display_data = 3'b000;
 end
 
 always @(posedge sysclk) begin
@@ -116,6 +120,7 @@ always @(posedge sysclk) begin
 				4: begin // Negative
 					// Change the negative state.
 					negative = ~negative;
+				end
 			endcase
 		end
 	end
@@ -123,10 +128,10 @@ end
 
 always @(*) begin
 	// Get the pixel position on the display.
-	display_x = display_addr[19:10];
-	display_y = display_addr[9:0];
+	display_x = display_addr[21:11];
+	display_y = display_addr[10:0];
 	// Check the display x and display y.
-	if(display_x < 231 || display_x > 711 || display_y < 36 || display_y > 516) begin
+	if ((display_x < 231) || (display_x > 711) || (display_y < 36) || (display_y > 516)) begin
 		// Always display black.
 		display_data = 3'b000;
 	end
@@ -198,7 +203,7 @@ always @(*) begin
 			image_index = current_image;
 		
 		// Check negative.
-		if(negative)
+		if (negative)
 			//Set the invert display pixel data.
 			display_data = ~pixel_data;
 		else
