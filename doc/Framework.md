@@ -1,7 +1,7 @@
 # Framework
 The framework of this realization looks like the Docker, and that is exactly what the idea comes from. The container-style framework.
 
-![Framework Image](https://rawgithub.com/Harinlen/FPGA_VGA/master/doc/Framework.svg)
+![Framework Image](Framework.svg)
 
 ## Container Manager.
 
