@@ -3,7 +3,9 @@ input wire [1:0] current_function,
 input wire [21:0] display_addr,
 input wire [2:0] func1_color,
 input wire [2:0] func2_color,
+input wire [2:0] func3_color,
 output reg [21:0] func2_addr,
+output reg [21:0] func3_addr,
 output reg [2:0] display_color);
 
 always @(*) begin
@@ -15,7 +17,10 @@ always @(*) begin
 			func2_addr = display_addr;
 			display_color = func2_color;
 		end
-		2'd2: display_color = func1_color;
+		2'd2: begin
+			func3_addr = display_addr;
+			display_color = func3_color;
+		end
 	endcase
 end
 

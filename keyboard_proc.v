@@ -11,6 +11,7 @@ input wire change_button,
 output reg [1:0] func_index,
 output reg [3:0] func1_instruction,
 output reg [3:0] func2_instruction,
+output reg [4:0] func3_instruction,
 output reg reset);
 
 reg [1:0] current_function;
@@ -42,6 +43,8 @@ always @(*) begin
 			func1_instruction = {{{SW3, SW2}, SW1}, East};
 			// Clear the function 2.
 			func2_instruction = 4'd0;
+			// Clear the function 3.
+			func3_instruction = 5'd0;
 		end
 		2'd1: begin
 			// Clear the function 1.
@@ -49,12 +52,17 @@ always @(*) begin
 			//Output function 2 instruction.
 			// Format is East, West, North, South button.
 			func2_instruction = {{{East, West}, North}, South};
+			// Clear the function 3.
+			func3_instruction = 5'd0;
 		end
 		2'd2: begin
 			// Clear the function 1.
 			func1_instruction = 4'd0;
 			// Clear the function 2.
 			func2_instruction = 4'd0;
+			//Output function 3 instruction.
+			// Format is East, West, North, South, Scramble(SW0) button.
+			func3_instruction = {{{{East, West}, North}, South}, SW0};
 		end
 	endcase
 end

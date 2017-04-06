@@ -4,7 +4,10 @@ input wire [2:0] instruction,
 input wire set,
 input wire [21:0] display_addr,
 input wire [2:0] pixel_data,
+input wire [3:0] mapper_pixel_x,
+input wire [3:0] mapper_pixel_y,
 input wire sysclk,
+output reg [21:0] mapper_display_addr,
 output reg [7:0] pixel_addr,
 output reg [2:0] image_index,
 output reg [2:0] display_data);
@@ -136,40 +139,10 @@ always @(*) begin
 		display_data = 3'b000;
 	end
 	else begin
-		// Calculate the image pixel position from display position.
-		if (display_x < 261) pixel_x = 0;
-		else if (display_x < 291) pixel_x = 1;
-		else if (display_x < 321) pixel_x = 2;
-		else if (display_x < 351) pixel_x = 3;
-		else if (display_x < 381) pixel_x = 4;
-		else if (display_x < 411) pixel_x = 5;
-		else if (display_x < 441) pixel_x = 6;
-		else if (display_x < 471) pixel_x = 7;
-		else if (display_x < 501) pixel_x = 8;
-		else if (display_x < 531) pixel_x = 9;
-		else if (display_x < 561) pixel_x = 10;
-		else if (display_x < 591) pixel_x = 11;
-		else if (display_x < 621) pixel_x = 12;
-		else if (display_x < 651) pixel_x = 13;
-		else if (display_x < 681) pixel_x = 14;
-		else pixel_x = 15;
-		
-		if (display_y < 66) pixel_y = 0; 
-		else if (display_y < 96) pixel_y = 1; 
-		else if (display_y < 126) pixel_y = 2;
-		else if (display_y < 156) pixel_y = 3;
-		else if (display_y < 186) pixel_y = 4;
-		else if (display_y < 216) pixel_y = 5;
-		else if (display_y < 246) pixel_y = 6;
-		else if (display_y < 276) pixel_y = 7;
-		else if (display_y < 306) pixel_y = 8;
-		else if (display_y < 336) pixel_y = 9;
-		else if (display_y < 366) pixel_y = 10;
-		else if (display_y < 396) pixel_y = 11;
-		else if (display_y < 426) pixel_y = 12;
-		else if (display_y < 456) pixel_y = 13;
-		else if (display_y < 486) pixel_y = 14;
-		else pixel_y = 15;
+		// Get the pixel x and y.
+		mapper_display_addr = display_addr;
+		pixel_x = mapper_pixel_x;
+		pixel_y = mapper_pixel_y;
 		
 		// Apply rotation.
 		case (trans_mode)

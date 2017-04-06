@@ -14,11 +14,7 @@ To test this, you have to launch a `cmd` and try to launch all these command. If
 
 ## Compile
 
-There is a `make.bat` which is design to compile the whole project with one command line under Windows.
-
-If some one likes to pull a request for makefile under UNIX, I will appreciate.
-
-Clone the whole repository to your local disk, and then open `cmd` and `cd` to the project folder. Type
+Clone the whole repository to your local disk, and then open `cmd` or terminal and `cd` to the project folder. Type
 
 	make
 
