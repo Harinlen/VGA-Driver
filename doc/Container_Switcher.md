@@ -17,3 +17,7 @@ The other one is the pixel address. It is used to describe the pixel on the imag
 ## Switcher
 
 A switcher keypad will be directly connect to container manager to swithch the function. This is the realization for function 4.
+
+The container switch could connect to three containers. These containers will output pixel data of the specific position. The container switcher could control the signal output according to the keypad manager.
+
+[Back to Home](Home.md)
