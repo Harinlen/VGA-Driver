@@ -1,5 +1,8 @@
 # Compiled verilog
 a.out
 
+# VVP dumped data.
+*.vcd
+
 # Mac OS X caches.
 .DS_Store
