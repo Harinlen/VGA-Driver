@@ -33,7 +33,6 @@ wire [21:0] func2_addr_in, func2_mapper_addr_in;
 wire [7:0] func2_vram_addr_in;
 wire [3:0] func2_keys, func2_mapper_x_out, func2_mapper_y_out;
 wire [2:0] func2_instruction, func2_color_out, func2_vram_color_out, func2_vram_index_in;
-wire func2_write;
 
 // Function 3 chips.
 wire [21:0] func3_addr_in, func3_mapper_addr_in;
@@ -41,7 +40,6 @@ wire [7:0] func3_vram_addr_in;
 wire [4:0] func3_keys;
 wire [3:0] func3_instruction, func3_mapper_x_out, func3_mapper_y_out;
 wire [2:0] func3_color_out, func3_vram_color_out, func3_vram_index_in;
-wire func3_write;
 
 // Image ROM chip.
 
@@ -116,7 +114,6 @@ img_mapper func3_img_mapper(
 
 f3_gpu func3_gpu(
 .instruction(func3_instruction),
-.set(func3_write),
 .display_addr(func3_addr_in),
 .pixel_data(func3_vram_color_out),
 .mapper_pixel_x(func3_mapper_x_out),
