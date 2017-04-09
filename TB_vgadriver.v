@@ -27,7 +27,7 @@ module TB_vgadriver;
 		.SW1(SW1),
 		.SW2(SW2),
 		.SW3(SW3),
-		.change_button(change_button),
+		.func_switch(change_button),
 		.sysclk(clk_50),
 		.VGA_R(VGA_R),
 		.VGA_G(VGA_G),
@@ -37,11 +37,11 @@ module TB_vgadriver;
 
 //create clock at 50MHz
 initial begin
-$dumpfile("TB_vgadriver.vcd");
-$dumpvars(3, TB_vgadriver);
-clk_50=0;
+	$dumpfile("TB_vgadriver.vcd");
+	$dumpvars(3, TB_vgadriver);
+	clk_50=0;
 forever 
-#1 clk_50 = ~clk_50; // every ten nanoseconds invert
+	#1 clk_50 = ~clk_50; // every ten nanoseconds invert
 end
 
 initial begin // initialisation of signals
@@ -59,10 +59,9 @@ end
 // Signal changes note it is 2 steps to a clock cycle
 initial begin
 	#2; change_button = 0;
-	#2; change_button = 1;
-	#2; change_button = 0;
+	#8; change_button = 1;
+//	#2; change_button = 0;
 	#5; North=1;
-	#2; North=0;
 	#5; South=1;
 	#2; South=0;
 	#3000; $finish;  // terminates simulation

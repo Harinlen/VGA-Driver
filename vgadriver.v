@@ -8,7 +8,7 @@ input wire SW0,
 input wire SW1,
 input wire SW2,
 input wire SW3,
-input wire change_button,
+input wire func_switch,
 //System clock
 input wire sysclk,
 //VGA outputs
@@ -59,7 +59,8 @@ keyboard_proc keyboard_processor(
 .SW1(SW1),
 .SW2(SW2),
 .SW3(SW3),
-.change_button(change_button),
+.change(func_switch),
+.sysclk(sysclk),
 .func_index(bus_current_function),
 .func1_instruction(func1_keys),
 .func2_instruction(func2_keys),
@@ -82,51 +83,49 @@ f1_vram func1_vram(
 f2_keyproc func2_keyproc(
 .func2_keys(func2_keys),
 .sysclk(sysclk),
-.write(func2_write),
 .instruction(func2_instruction));
 
 img_mapper func2_img_mapper(
-.display_addr(func2_addr_in),
+.display_addr(func2_mapper_addr_in),
 .pixel_x(func2_mapper_x_out),
 .pixel_y(func2_mapper_y_out));
-
+ 
 f2_gpu func2_gpu(
 .instruction(func2_instruction),
-.set(func2_write),
 .display_addr(func2_addr_in),
 .pixel_data(vram_color_out),
 .mapper_pixel_x(func2_mapper_x_out),
 .mapper_pixel_y(func2_mapper_y_out),
 .sysclk(sysclk),
-.mapper_display_addr(func2_addr_in),
+.mapper_display_addr(func2_mapper_addr_in),
 .pixel_addr(vram_addr_in),
 .image_index(vram_index_in),
 .display_data(func2_color_out));
-
+ 
 // Function 3 chips.
-f3_keyproc func3_keyproc(
-.func3_keys(func3_keys),
-.sysclk(sysclk),
-.write(func3_write),
-.instruction(func3_instruction));
-
-img_mapper func3_img_mapper(
-.display_addr(func3_addr_in),
-.pixel_x(func3_mapper_x_out),
-.pixel_y(func3_mapper_y_out));
-
-f3_gpu func3_gpu(
-.instruction(func3_instruction),
-.set(func3_write),
-.display_addr(func3_addr_in),
-.pixel_data(vram_color_out),
-.mapper_pixel_x(func3_mapper_x_out),
-.mapper_pixel_y(func3_mapper_y_out),
-.sysclk(sysclk),
-.mapper_display_addr(func3_addr_in),
-.pixel_addr(vram_addr_in),
-.display_data(func3_color_out));
-
+//f3_keyproc func3_keyproc(
+//.func3_keys(func3_keys),
+//.sysclk(sysclk),
+//.write(func3_write),
+//.instruction(func3_instruction));
+//
+//img_mapper func3_img_mapper(
+//.display_addr(func3_mapper_addr_in),
+//.pixel_x(func3_mapper_x_out),
+//.pixel_y(func3_mapper_y_out));
+//
+//f3_gpu func3_gpu(
+//.instruction(func3_instruction),
+//.set(func3_write),
+//.display_addr(func3_addr_in),
+//.pixel_data(vram_color_out),
+//.mapper_pixel_x(func3_mapper_x_out),
+////.mapper_pixel_y(func3_mapper_y_out),
+//.sysclk(sysclk),
+//.mapper_display_addr(func3_mapper_addr_in),
+//.pixel_addr(vram_addr_in),
+//.display_data(func3_color_out));
+//
 // Image ROM chip.
 img_vrom image_rom(
 .pixel_addr(vram_addr_in),

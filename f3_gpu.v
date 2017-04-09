@@ -1,6 +1,7 @@
 `include "constant.v"
 module f3_gpu(
 input wire [3:0] instruction,
+input wire set,
 input wire [21:0] display_addr,
 input wire [2:0] pixel_data,
 input wire [3:0] mapper_pixel_x,
@@ -49,7 +50,7 @@ always @(*) begin
 		pixel_x = mapper_pixel_x;
 		pixel_y = mapper_pixel_y;
 		// Set the pixel addr.
-		pixel_addr = {pixel_x + x_offsets[pixel_x], pixel_y + y_offsets[pixel_y]};
+		pixel_addr = {pixel_x, pixel_y};
 		// Set the normal display pixel data.
 		display_data = pixel_data;
 	end

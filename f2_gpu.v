@@ -1,7 +1,6 @@
 `include "constant.v"
 module f2_gpu(
 input wire [2:0] instruction,
-input wire set,
 input wire [21:0] display_addr,
 input wire [2:0] pixel_data,
 input wire [3:0] mapper_pixel_x,
@@ -12,6 +11,8 @@ output reg [7:0] pixel_addr,
 output reg [2:0] image_index,
 output reg [2:0] display_data);
 
+wire East, West, North, South;
+
 reg [10:0] display_x, display_y;
 reg [3:0] pixel_x, pixel_y;
 reg [1:0] trans_mode;
@@ -19,7 +20,7 @@ reg [7:0] anime_pixel_index;
 reg [2:0] current_image;
 reg [2:0] command;
 reg [3:0] delay_counter;
-reg state, negative, is_display;
+reg state, negative, done_flag;
 
 initial begin
 	// Display parameter
@@ -33,8 +34,8 @@ initial begin
 	trans_mode = 2'b00;
 	// Reset the negative state.
 	negative = 0;
-	// Reset display parameter.
-	is_display = 0;
+	// Reset the key processed flag.
+	done_flag = 0;
 	// Reset animation parameter.
 	anime_pixel_index = 8'b0;
 	current_image = 0;
@@ -78,53 +79,72 @@ always @(posedge sysclk) begin
 		delay_counter <= delay_counter + 1;
 	end
 	else begin
-		// Checking the set state.
-		if (set) begin
-			// A new command should be set, save the command.
-			command <= instruction;
-			// Clear the state as default.
-			state <= 0;
-			// Check the command
-			case (command)
-				1: begin //Move forward.
-					// Reset rotation.
-					trans_mode <= 0;
-					// Reset the nagative.
-					negative = 0;
-					// Check the image index, move to the previous image.
-					if (current_image == 0)
-						current_image <= `MAX_IMAGE_INDEX;
-					else
-						current_image <= current_image - 1;
-					// Reset the animation.
-					anime_pixel_index <= 8'hFF;
-					// Set the state.
-					state <= 1;
-				end
-				2: begin // Move backward.
-					// Reset rotation.
-					trans_mode = 0;
-					// Reset the nagative.
-					negative = 0;
-					//Check the image index, move to the next image.
-					if (current_image == `MAX_IMAGE_INDEX)
-						current_image <= 0;
-					else
-						current_image <= current_image + 1;
-					// Reset the animation.
-					anime_pixel_index <= 8'h00;
-					// Set the state.
-					state <= 1;
-				end
-				3: begin // Rotate.
-					//Reset rotation.
-					trans_mode <= trans_mode + 1;
-				end
-				4: begin // Negative
-					// Change the negative state.
-					negative = ~negative;
-				end
-			endcase
+		// Clear the state as default.
+		state <= 0;
+		// Check the command.
+		if(instruction == 0) begin
+			// Save the command.
+			command <= 0;
+			// Reset the done flag.
+			done_flag <= 0;
+		end
+		else begin
+			if (!done_flag) begin
+				// A new command should be set, save the command.
+				command <= instruction;
+				// Check the command
+				case (instruction)
+					1: begin //Move forward.
+						// Reset rotation.
+						trans_mode <= 0;
+						// Reset the nagative.
+						negative <= 0;
+						// Check the image index, move to the previous image.
+						if (current_image == 0)
+							current_image <= `MAX_IMAGE_INDEX;
+						else
+							current_image <= current_image - 1;
+						// Reset the animation.
+						anime_pixel_index <= 8'hFF;
+						// Set the state.
+						//state <= 1;
+						// Set the done flag.
+						done_flag <= 1;
+					end
+					2: begin // Move backward.
+						// Reset rotation.
+						trans_mode <= 0;
+						// Reset the nagative.
+						negative <= 0;
+						//Check the image index, move to the next image.
+						if (current_image == `MAX_IMAGE_INDEX)
+							current_image <= 0;
+						else
+							current_image <= current_image + 1;
+						// Reset the animation.
+						anime_pixel_index <= 8'h00;
+						// Set the state.
+						//state <= 1;
+						// Set the done flag.
+						done_flag <= 1;
+					end
+					3: begin // Rotate.
+						//Reset rotation.
+						if(trans_mode == 3)
+							trans_mode <= 0;
+						else
+							trans_mode <= trans_mode + 1;
+						// Set the done flag.
+						done_flag <= 1;
+					end
+					4: begin // Negative
+						// Change the negative state.
+						negative <= ~negative;
+						// Set the done flag.
+						done_flag <= 1;
+					end
+				endcase
+			end
 		end
 	end
 end
@@ -146,10 +166,10 @@ always @(*) begin
 		
 		// Apply rotation.
 		case (trans_mode)
-			0: pixel_addr = {pixel_x, pixel_y};
-			1: pixel_addr = {pixel_y, 4'd`MAX_IMAGE_SIZE - pixel_x};
-			2: pixel_addr = {4'd`MAX_IMAGE_SIZE - pixel_x, 4'd`MAX_IMAGE_SIZE - pixel_y};
-			3: pixel_addr = {4'd`MAX_IMAGE_SIZE - pixel_y, pixel_x};
+			0: pixel_addr = {pixel_y, pixel_x};
+			1: pixel_addr = {pixel_x, 4'd`MAX_IMAGE_SIZE - pixel_y};
+			2: pixel_addr = {4'd`MAX_IMAGE_SIZE - pixel_y, 4'd`MAX_IMAGE_SIZE - pixel_x};
+			3: pixel_addr = {4'd`MAX_IMAGE_SIZE - pixel_x, pixel_y};
 		endcase
 		
 		// Apply animation.
