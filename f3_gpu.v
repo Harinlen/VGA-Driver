@@ -69,7 +69,7 @@ always @(posedge sysclk) begin
 					// Write data.
 					ram_write_pos <= cursor_y;
 					ram_write_horizontal <= 1;
-					ram_write_increase <= 0;
+					ram_write_increase <= 1;
 				end
 				// Move Left
 				3: begin
@@ -78,7 +78,7 @@ always @(posedge sysclk) begin
 					// Write data.
 					ram_write_pos <= cursor_y;
 					ram_write_horizontal <= 1;
-					ram_write_increase <= 1;
+					ram_write_increase <= 0;
 				end
 				// Move Down
 				4: begin

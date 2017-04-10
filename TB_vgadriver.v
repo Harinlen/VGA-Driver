@@ -37,8 +37,8 @@ module TB_vgadriver;
 
 //create clock at 50MHz
 initial begin
-	//$dumpfile("TB_vgadriver.vcd");
-	//$dumpvars(3, TB_vgadriver);
+	$dumpfile("TB_vgadriver.vcd");
+	$dumpvars(3, TB_vgadriver);
 	clk_50=0;
 forever 
 	#1 clk_50 = ~clk_50; // every ten nanoseconds invert
