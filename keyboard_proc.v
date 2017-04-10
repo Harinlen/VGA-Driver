@@ -13,38 +13,17 @@ output reg [1:0] func_index,
 output reg [3:0] func1_instruction,
 output reg [3:0] func2_instruction,
 output reg [4:0] func3_instruction,
-output reg reset);
+output reg reset,
+output reg change_debug);
 
 reg [1:0] current_function;
-
-reg [2:0] deb_East, deb_West, deb_North, deb_South, deb_change;
-reg dff_East, dff_West, dff_North, dff_South, dff_change;
 
 initial begin
 	//To debug function, change the default value.
 	current_function = 0;
-	// Clear the reg.
-	deb_East = 0;
-	deb_West = 0;
-	deb_North = 0;
-	deb_South = 0;
-	deb_change = 0;
 end
 
-always @(posedge sysclk) begin
-	deb_East <= {deb_East[1:0], East};
-	deb_West <= {deb_West[1:0], West};
-	deb_South <= {deb_South[1:0], South};
-	deb_North <= {deb_North[1:0], North};
-	deb_change <= {deb_change[1:0], change};
-	dff_East <= deb_East[2] & deb_East[1] & deb_East[0];
-	dff_West <= deb_West[2] & deb_West[1] & deb_West[0];
-	dff_North <= deb_North[2] & deb_North[1] & deb_North[0];
-	dff_South <= deb_South[2] & deb_South[1] & deb_South[0];
-	dff_change <= deb_change[2] & deb_change[1] & deb_change[0];
-end
-
-always @(posedge dff_change) begin
+always @(posedge change) begin
 	if (current_function == 2)
 		current_function <= 0;
 	else
@@ -52,6 +31,9 @@ always @(posedge dff_change) begin
 end
 
 always @(*) begin
+	//Debug
+	change_debug = change;
+
 	//Set the reset signal.
 	reset = SW0;
 	//Output the function index.
@@ -74,7 +56,7 @@ always @(*) begin
 			func1_instruction = 4'd0;
 			//Output function 2 instruction.
 			// Format is East, West, North, South button.
-			func2_instruction = {{{dff_East, dff_West}, dff_North}, dff_South};
+			func2_instruction = {{{East, West}, North}, South};
 			// Clear the function 3.
 			func3_instruction = 5'd0;
 		end
@@ -84,8 +66,8 @@ always @(*) begin
 			// Clear the function 2.
 			func2_instruction = 4'd0;
 			//Output function 3 instruction.
-			// Format is East, West, North, South, Scramble(SW0) button.
-			func3_instruction = {{{{dff_East, dff_West}, dff_North}, dff_South}, SW0};
+			// Format is East, West, North, South, Scramble(SW3) button.
+			func3_instruction = {{{{East, West}, North}, South}, SW3};
 		end
 	endcase
 end

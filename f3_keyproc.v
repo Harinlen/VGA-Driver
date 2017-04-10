@@ -2,6 +2,7 @@ module f3_keyproc(
 input wire [4:0] func3_keys,
 input wire sysclk,
 output reg write,
+output reg scramble,
 output reg [3:0] instruction);
 
 //Defines the instruction for function 3.
@@ -35,14 +36,12 @@ always @(posedge sysclk) begin
 		instruction <= 4'd4;
 		write <= 1;
 	end
-	else if (func3_keys[0]) begin
-		instruction <= 4'd5;
-		write <= 1;
-	end
 	else begin
 		instruction <= 4'd0;
 		write <= 0;
 	end
+	//Save the scramble state.
+	scramble <= func3_keys[0];
 end
 
 endmodule

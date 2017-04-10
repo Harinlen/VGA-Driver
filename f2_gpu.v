@@ -9,7 +9,11 @@ input wire sysclk,
 output reg [21:0] mapper_display_addr,
 output reg [7:0] pixel_addr,
 output reg [2:0] image_index,
-output reg [2:0] display_data);
+output reg [2:0] display_data,
+output reg ins1,
+output reg ins2,
+output reg ins3,
+output reg ins4);
 
 wire East, West, North, South;
 
@@ -19,7 +23,7 @@ reg [1:0] trans_mode;
 reg [7:0] anime_pixel_index;
 reg [2:0] current_image;
 reg [2:0] command;
-reg [3:0] delay_counter;
+reg [10:0] delay_counter;
 reg state, negative, done_flag;
 
 initial begin
@@ -76,7 +80,7 @@ always @(posedge sysclk) begin
 			endcase
 		end
 		// Increase the delay counter.
-		delay_counter <= delay_counter + 1;
+		delay_counter <= delay_counter + 1'b1;
 	end
 	else begin
 		// Clear the state as default.
@@ -89,7 +93,7 @@ always @(posedge sysclk) begin
 			done_flag <= 0;
 		end
 		else begin
-			if (!done_flag) begin
+			if (done_flag == 0) begin
 				// A new command should be set, save the command.
 				command <= instruction;
 				// Check the command
@@ -107,7 +111,7 @@ always @(posedge sysclk) begin
 						// Reset the animation.
 						anime_pixel_index <= 8'hFF;
 						// Set the state.
-						//state <= 1;
+						state <= 1;
 						// Set the done flag.
 						done_flag <= 1;
 					end
@@ -124,7 +128,7 @@ always @(posedge sysclk) begin
 						// Reset the animation.
 						anime_pixel_index <= 8'h00;
 						// Set the state.
-						//state <= 1;
+						state <= 1;
 						// Set the done flag.
 						done_flag <= 1;
 					end
@@ -150,6 +154,11 @@ always @(posedge sysclk) begin
 end
 
 always @(*) begin
+	ins1 = instruction == 1;
+	ins2 = instruction == 2;
+	ins3 = instruction == 3;
+	ins4 = instruction == 4;
+
 	// Get the pixel position on the display.
 	display_x = display_addr[21:11];
 	display_y = display_addr[10:0];
