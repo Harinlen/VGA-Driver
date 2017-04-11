@@ -1,8 +1,53 @@
 # Compiled verilog
 a.out
 
+# Logs
+*.cmd_log
+*.log
+
 # VVP dumped data.
 *.vcd
 
 # Mac OS X caches.
 .DS_Store
+
+# ISE Project Folders.
+iseconfig
+isim
+netgen
+vgadriver_xdb
+xlnx_auto_0_xdb
+xst
+
+# ISE Project Generate files.
+TB_vgadriver_isim_beh.exe
+vgadriver.bgn
+vgadriver.bit
+vgadriver.bld
+xilinxsim.ini
+vgadriver.drc
+ass1.gise
+vgadriver_map.map
+*.lso
+Untitled.mcs
+vgadriver_pad.csv
+vgadriver_map.mrp
+*.ncd
+vgadriver.ngc
+vgadriver.ngd
+vgadriver_map.ngm
+vgadriver.ngr
+vgadriver.pad
+vgadriver.par
+vgadriver.pcf
+TB_vgadriver.prj
+TB_vgadriver_beh.prj
+vgadriver.prj
+
+
+# ISE Project Reports.
+TB_vgadriver_envsettings.html
+TB_vgadriver_summary.html
+usage_statistics_webtalk.html
+vgadriver_envsettings.html
+vgadriver_summary.html

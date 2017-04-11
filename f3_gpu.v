@@ -17,7 +17,8 @@ output reg [2:0] display_data,
 output reg [3:0] ram_write_pos,
 output reg ram_write_horizontal,
 output reg ram_write_increase,
-output reg ram_write);
+output reg ram_write,
+output reg ram_reset);
 
 reg [10:0] display_x, display_y;
 reg [3:0] pixel_x, pixel_y, pixel_offset_x, pixel_offset_y, cursor_x, cursor_y;
@@ -33,6 +34,8 @@ initial begin
 	// Clear the flash parameter.
 	flash_counter = 0;
 	flash_negative = 0;
+	// Clear the memory reset.
+	ram_reset = 0;
 end
 
 always @(posedge sysclk) begin
@@ -42,58 +45,73 @@ always @(posedge sysclk) begin
 	if (flash_counter == 25'b0) begin
 		flash_negative <= ~flash_negative;
 	end
+	// Set RAM write to 0.
+	ram_write <= 0;
+	// Set RAM reset when the reset instruction is given.
+	ram_reset <= (instruction == 5);
+	// Check instruction running state.
 	if (instruction_done) begin
-		if (instruction == 0)
+		// Only when the instruction set to None, we could accept for the next instruction.
+		if (instruction == 0) begin
 			instruction_done <= 0;
+		end
 	end
 	else begin
 		// Check the scramble state.
 		if (scramble) begin
-			// Set write to 0.
-			ram_write <= 0;
 			// Check the instruction according to the instruction.
 			case (instruction)
+				// Ignore for None command.
 				// Move Up
 				1: begin
-					// Let it write.
-					ram_write <= 1;
-					// Write data.
+					// Set write data.
 					ram_write_pos <= cursor_x;
 					ram_write_horizontal <= 0;
 					ram_write_increase <= 1;
+					// Let it write.
+					ram_write <= 1;
+					//Set done to 1.
+					instruction_done <= 1;
 				end
 				// Move Right
 				2: begin
-					// Let it write.
-					ram_write <= 1;
-					// Write data.
+					// Set write data.
 					ram_write_pos <= cursor_y;
 					ram_write_horizontal <= 1;
-					ram_write_increase <= 1;
+					ram_write_increase <= 0;
+					// Let it write.
+					ram_write <= 1;
+					//Set done to 1.
+					instruction_done <= 1;
 				end
 				// Move Left
 				3: begin
-					// Let it write.
-					ram_write <= 1;
-					// Write data.
+					// Set write data.
 					ram_write_pos <= cursor_y;
 					ram_write_horizontal <= 1;
-					ram_write_increase <= 0;
+					ram_write_increase <= 1;
+					// Let it write.
+					ram_write <= 1;
+					//Set done to 1.
+					instruction_done <= 1;
 				end
 				// Move Down
 				4: begin
-					// Let it write.
-					ram_write <= 1;
-					// Write data.
+					// Set write data.
 					ram_write_pos <= cursor_x;
 					ram_write_horizontal <= 0;
 					ram_write_increase <= 0;
+					// Let it write.
+					ram_write <= 1;
+					//Set done to 1.
+					instruction_done <= 1;
 				end
 			endcase
 		end
 		else begin
 			// Move the cursor according to the insturction.
 			case (instruction)
+				// Ignore for None command.
 				// Move Up
 				1: begin
 					if (cursor_y == 0)
@@ -147,19 +165,14 @@ always @(*) begin
 	else begin
 		// Get the pixel x and y.
 		mapper_display_addr = display_addr;
-		pixel_x = mapper_pixel_x;
-		pixel_y = mapper_pixel_y;
 		// Check the cursor flashing.
-		is_cursor = flash_negative && (pixel_x == cursor_x) && (pixel_y == cursor_y);
+		is_cursor = flash_negative && (mapper_pixel_x == cursor_x) && (mapper_pixel_y == cursor_y);
 		// Set the offset pos x and y.
-		offset_pos_x = pixel_x;
-		offset_pos_y = pixel_y;
-		// Get the offset.
-		pixel_offset_x = offset_x;
-		pixel_offset_y = offset_y;
+		offset_pos_x = mapper_pixel_x;
+		offset_pos_y = mapper_pixel_y;
 		// Process the offset.
-		pixel_x = pixel_x + pixel_offset_y;
-		pixel_y = pixel_y + pixel_offset_x;
+		pixel_x = mapper_pixel_x + offset_y;
+		pixel_y = mapper_pixel_y + offset_x;
 		// Set the pixel addr.
 		pixel_addr = {pixel_y, pixel_x};
 		// Set the display pixel data.

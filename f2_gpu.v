@@ -9,11 +9,7 @@ input wire sysclk,
 output reg [21:0] mapper_display_addr,
 output reg [7:0] pixel_addr,
 output reg [2:0] image_index,
-output reg [2:0] display_data,
-output reg ins1,
-output reg ins2,
-output reg ins3,
-output reg ins4);
+output reg [2:0] display_data);
 
 wire East, West, North, South;
 
@@ -154,11 +150,6 @@ always @(posedge sysclk) begin
 end
 
 always @(*) begin
-	ins1 = instruction == 1;
-	ins2 = instruction == 2;
-	ins3 = instruction == 3;
-	ins4 = instruction == 4;
-
 	// Get the pixel position on the display.
 	display_x = display_addr[21:11];
 	display_y = display_addr[10:0];

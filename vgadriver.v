@@ -48,7 +48,7 @@ wire [7:0] func3_vram_addr_in;
 wire [4:0] func3_keys;
 wire [3:0] func3_instruction, func3_mapper_x_out, func3_mapper_y_out, func3_offset_x_in, func3_offset_y_in, func3_offset_x_out, func3_offset_y_out, func3_ram_write_pos;
 wire [2:0] func3_color_out, func3_vram_color_out, func3_vram_index_in;
-wire func3_scramble, func3_ram_write_horizontal, func3_ram_write_increase, func3_ram_write;
+wire func3_scramble, func3_ram_write_horizontal, func3_ram_write_increase, func3_ram_write, func3_ram_reset;
 
 // VGA port.
 wire [2:0] vga_color;
@@ -101,8 +101,7 @@ keyboard_proc keyboard_processor(
 .func1_instruction(func1_keys),
 .func2_instruction(func2_keys),
 .func3_instruction(func3_keys),
-.reset(bus_reset),
-.change_debug(ins5));
+.reset(bus_reset));
 
 // Function 1 chips.
 f1_keyproc func1_keyproc(
@@ -137,17 +136,11 @@ f2_gpu func2_gpu(
 .mapper_display_addr(func2_mapper_addr_in),
 .pixel_addr(func2_vram_addr_in),
 .image_index(func2_vram_index_in),
-.display_data(func2_color_out),
-.ins1(ins1),
-.ins2(ins2),
-.ins3(ins3),
-.ins4(ins4));
+.display_data(func2_color_out));
  
 // Function 3 chips.
 f3_keyproc func3_keyproc(
 .func3_keys(func3_keys),
-.sysclk(sysclk),
-.write(func3_write),
 .scramble(func3_scramble),
 .instruction(func3_instruction));
 
@@ -163,9 +156,11 @@ f3_ram func3_ram(
 .ram_write_horizontal(func3_ram_write_horizontal),
 .ram_write_increase(func3_ram_write_increase),
 .ram_write(func3_ram_write),
+.ram_reset(func3_ram_reset),
 .sysclk(sysclk),
 .offset_x(func3_offset_x_out),
-.offset_y(func3_offset_y_out));
+.offset_y(func3_offset_y_out),
+.reset_check(ins1));
 
 f3_gpu func3_gpu(
 .instruction(func3_instruction),
@@ -185,7 +180,8 @@ f3_gpu func3_gpu(
 .ram_write_pos(func3_ram_write_pos),
 .ram_write_horizontal(func3_ram_write_horizontal),
 .ram_write_increase(func3_ram_write_increase),
-.ram_write(func3_ram_write));
+.ram_write(func3_ram_write),
+.ram_reset(func3_ram_reset));
 
 // Image ROM chip.
 img_vrom image_rom(

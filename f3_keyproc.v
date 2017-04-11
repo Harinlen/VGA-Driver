@@ -1,7 +1,5 @@
 module f3_keyproc(
 input wire [4:0] func3_keys,
-input wire sysclk,
-output reg write,
 output reg scramble,
 output reg [3:0] instruction);
 
@@ -11,37 +9,48 @@ output reg [3:0] instruction);
 // 2 = East
 // 3 = West
 // 4 = South
-// 5 = Scramble
+// 5 = Restart the game.
+// Scramble will use an independent wire to process.
 
 initial begin
 	instruction = 4'd0;
-	write = 0;
 end
 
-always @(posedge sysclk) begin
+always @(*) begin
 	// Check all the keys.
 	if (func3_keys[4]) begin
-		instruction <= 4'd2;
-		write <= 1;
+		// East button pressed.
+		// Check whether West button is pressed as well, we will output restart command instead.
+		if (func3_keys[3]) begin
+			instruction = 4'd5;
+		end
+		else begin
+			instruction = 4'd2;
+		end
 	end
 	else if (func3_keys[3]) begin
-		instruction <= 4'd3;
-		write <= 1;
+		// West button.
+		// Check East button is pressed as well, we will output restart command instead.
+		if (func3_keys[4]) begin
+			instruction = 4'd5;
+		end
+		else begin
+			instruction = 4'd3;
+		end
 	end
 	else if (func3_keys[2]) begin
-		instruction <= 4'd1;
-		write <= 1;
+		// North button.
+		instruction = 4'd1;
 	end
 	else if (func3_keys[1]) begin
-		instruction <= 4'd4;
-		write <= 1;
+		// South button.
+		instruction = 4'd4;
 	end
 	else begin
-		instruction <= 4'd0;
-		write <= 0;
+		instruction = 4'd0;
 	end
 	//Save the scramble state.
-	scramble <= func3_keys[0];
+	scramble = func3_keys[0];
 end
 
 endmodule

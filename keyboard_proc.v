@@ -13,8 +13,7 @@ output reg [1:0] func_index,
 output reg [3:0] func1_instruction,
 output reg [3:0] func2_instruction,
 output reg [4:0] func3_instruction,
-output reg reset,
-output reg change_debug);
+output reg reset);
 
 reg [1:0] current_function;
 
@@ -31,9 +30,6 @@ always @(posedge change) begin
 end
 
 always @(*) begin
-	//Debug
-	change_debug = change;
-
 	//Set the reset signal.
 	reset = SW0;
 	//Output the function index.
