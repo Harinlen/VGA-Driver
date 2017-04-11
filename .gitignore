@@ -18,6 +18,7 @@ netgen
 vgadriver_xdb
 xlnx_auto_0_xdb
 xst
+_xmsgs
 
 # ISE Project Generate files.
 TB_vgadriver_isim_beh.exe
