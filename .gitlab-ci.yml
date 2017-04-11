@@ -3,5 +3,9 @@ before_script:
   - iverilog -v
   - gtkwave -V
 
-jobs:
-  - script: "make"
+.script: &build_script
+  - make
+
+jom_name: 
+  stage: build
+  script: *build_script
