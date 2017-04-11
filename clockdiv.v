@@ -13,7 +13,7 @@ always @(posedge clk) begin
       end 
 		default: begin
 			case(count) 
-				8'h10: begin
+				18'h10: begin
 					beat <= 1'b1;
 					count <= count + 1'b1;
 				end

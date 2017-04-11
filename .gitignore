@@ -19,6 +19,7 @@ vgadriver_xdb
 xlnx_auto_0_xdb
 xst
 _xmsgs
+_ngo
 
 # ISE Project Generate files.
 TB_vgadriver_isim_beh.exe
@@ -44,7 +45,20 @@ vgadriver.pcf
 TB_vgadriver.prj
 TB_vgadriver_beh.prj
 vgadriver.prj
-
+vgadriver.ptwx
+vgadriver.stx
+vgadriver.syr
+vgadriver.unroutes
+vgadriver.xpi
+vgadriver.xst
+vgadriver_map.xrpt
+vgadriver_ngdbuild.xrpt
+vgadriver_pad.txt
+vgadriver_par.xrpt
+vgadriver_summary.xml
+vgadriver_usage.xml
+vgadriver_xst.xrpt
+webtalk_pn.xml
 
 # ISE Project Reports.
 TB_vgadriver_envsettings.html
