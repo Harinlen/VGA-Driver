@@ -10,3 +10,4 @@ Table of Content
 2. [Keyboard Processor](Keyboard_proc.md)
 3. [Function 1](Function_1_Framework.md)
 3. [Function 2](Function_2_Framework.md)
+4. [Function 3](Function_3_Framework.md)
