@@ -1,7 +1,6 @@
 # FPGA Assignment: some fun with FPGA VGA output.
 
-![Build Pass](https://img.shields.io/badge/build-success-brightgreen.svg)
-![Progress](http://progressed.io/bar/71?title=Progress)
+![Build Pass](https://img.shields.io/badge/build-success-brightgreen.svg)  ![Progress](http://progressed.io/bar/71?title=Progress)
 
 Just an average guy who serves an average assignment.
 
