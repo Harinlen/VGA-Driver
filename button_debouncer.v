@@ -8,6 +8,9 @@ reg delay1;
 reg delay2;
 reg delay3;
 
+reg [17:0] count;
+reg beat;
+
 wire slower_clk;
 
 initial begin
@@ -16,22 +19,44 @@ initial begin
     delay3 = 1'b0;
 end
 
-clockdiv divider(
-.clk(clk),
-.reset(clr),
-.beat(slower_clk));
+assign slower_clk = beat;
+always @(posedge clk) begin
+	// Check the reset first.
+   if (clr) begin
+		beat <= 1'b0;
+		count <= 18'h0;
+   end 
+	else begin
+		case(count)
+			//Set any value. 
+			18'h1: begin
+				// Give an posedge.
+				beat <= 1'b1;
+				count <= count + 1'b1;
+			end
+			// Ignore, continue add.
+         default: begin
+				beat <= 1'b0;
+				count <= count + 1'b1;
+			end
+		endcase
+	end
+end
 
 always @(posedge slower_clk or posedge clr) begin
-    if (clr==1) begin
-        delay1 <= 1'b0;
-        delay2 <= 1'b0;
-        delay3 <= 1'b0;
-    end
-    else begin
-        delay1 <= inp;
-        delay2 <= delay1;
-        delay3 <= delay2;
-    end
+	// Check reset first.
+	if (clr) begin
+		// Clear all the delay data.
+      delay1 <= 1'b0;
+      delay2 <= 1'b0;
+      delay3 <= 1'b0;
+   end
+   else begin
+		// Left shift all the data.
+      delay1 <= inp;
+      delay2 <= delay1;
+      delay3 <= delay2;
+   end
 end
 
 assign outp = delay1 & delay2 & delay3;

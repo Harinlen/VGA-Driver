@@ -59,6 +59,9 @@ vgadriver_summary.xml
 vgadriver_usage.xml
 vgadriver_xst.xrpt
 webtalk_pn.xml
+vgadriver.twr
+vgadriver.twx
+vgadriver.ut
 
 # ISE Project Reports.
 TB_vgadriver_envsettings.html
