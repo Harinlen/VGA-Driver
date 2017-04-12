@@ -120,7 +120,10 @@ task offset_all_zero;
 endtask
 
 initial begin
+	// Clear the offset.
 	reset_ram();
+	// Clear the offset all zero.
+	ram_offset_all_zero <= 1;
 end
 
 always @(posedge sysclk) begin
@@ -128,6 +131,7 @@ always @(posedge sysclk) begin
         reset_ram();
     end
     else begin
+		  ram_offset_all_zero <= 0;
         if (ram_write) begin
             if (ram_write_horizontal) begin
                 // All y_offset, for horizontal move.

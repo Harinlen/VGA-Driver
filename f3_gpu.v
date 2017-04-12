@@ -58,7 +58,7 @@ always @(posedge sysclk) begin
 		// When we get here, it means that all the offset has been reset to zero.
 		// From now on, it won't accept any input expect the restart command.
 		//!FIXME: Add check restart command code here.
-        scramble_win <= 1;
+      scramble_win <= 1;
 	end
 	else begin
         // Set RAM reset when the reset instruction is given.
@@ -202,13 +202,14 @@ always @(*) begin
 		// Set the display pixel data.
       // Check the win state.
       if (scramble_win) begin
-          // Check the flash negative.
+          // Check the flash negative, all the image need to be flashed.
           if (flash_negative)
               display_data = ~pixel_data;
           else
               display_data = pixel_data;
       end
       else begin
+			// Only cursor needs to flash.
           if (is_cursor)
               display_data = ~pixel_data;
           else

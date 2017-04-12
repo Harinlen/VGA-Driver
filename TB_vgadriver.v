@@ -59,8 +59,10 @@ end
 // Signal changes note it is 2 steps to a clock cycle
 initial begin
 	#2; change_button = 0;
-	#8; change_button = 1;
-//	#2; change_button = 0;
+	#3; change_button = 1;
+	#1520; change_button = 0;
+	//#3; change_button = 1;
+	//#6000; change_button = 0;
 	#5; North=1;
 	#5; South=1;
 	#2; South=0;
