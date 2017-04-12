@@ -19,7 +19,7 @@ reg [1:0] trans_mode;
 reg [7:0] anime_pixel_index;
 reg [2:0] current_image;
 reg [2:0] command;
-reg [10:0] delay_counter;
+reg [18:0] delay_counter;
 reg state, negative, done_flag;
 
 initial begin
@@ -50,7 +50,7 @@ always @(posedge sysclk) begin
 	// Check the running state first.
 	if (state) begin
 		// An instruction is running, checking the delay counter.
-		if (delay_counter == 0) begin
+		if (delay_counter == 1'b0) begin
 			// Run the counter.
 			case (command)
 				// Moving backward.
@@ -175,7 +175,7 @@ always @(*) begin
 		// Apply animation.
 		if (state)
 			if (pixel_addr < anime_pixel_index)
-				// Previous image, this should depend on the command
+				// Previous image
 				if (command == 1)
 					// Move previous, its image should be the next one.
 					if (current_image == `MAX_IMAGE_INDEX)
@@ -183,14 +183,19 @@ always @(*) begin
 					else
 						image_index = current_image + 1;
 				else
+					// Current image.
+					image_index = current_image;
+			else
+				// Next image
+				if (command == 2)
 					// Move next, its pirevous image should be the previous one.
 					if (current_image == 0)
 						image_index = `MAX_IMAGE_INDEX;
 					else
 						image_index = current_image - 1;
-			else
-				// Current image.
-				image_index = current_image;
+				else
+					// Current image.
+					image_index = current_image;
 		else
 			// Always current image.
 			image_index = current_image;

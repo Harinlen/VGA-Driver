@@ -7,9 +7,9 @@ input wire ram_write_increase,
 input wire ram_write,
 input wire ram_reset,
 input wire sysclk,
-output reg reset_check,
 output reg [3:0] offset_x,
-output reg [3:0] offset_y);
+output reg [3:0] offset_y,
+output reg ram_offset_all_zero);
 
 reg [3:0] x_offsets_0,
           x_offsets_1,
@@ -79,6 +79,44 @@ task reset_ram;
         y_offsets_14 <= 0;
         y_offsets_15 <= 0;
     end
+endtask
+
+task offset_all_zero;
+	output is_all_zero;
+	begin
+		is_all_zero <= (x_offsets_0 == 0)
+		             & (x_offsets_1 == 0)
+		             & (x_offsets_2 == 0)
+		             & (x_offsets_3 == 0)
+		             & (x_offsets_4 == 0)
+		             & (x_offsets_5 == 0)
+		             & (x_offsets_6 == 0)
+		             & (x_offsets_7 == 0)
+		             & (x_offsets_8 == 0)
+		             & (x_offsets_9 == 0)
+		             & (x_offsets_10== 0)
+		             & (x_offsets_11== 0)
+		             & (x_offsets_12== 0)
+		             & (x_offsets_13== 0)
+		             & (x_offsets_14== 0)
+		             & (x_offsets_15== 0)
+		             & (y_offsets_0 == 0)
+		             & (y_offsets_1 == 0)
+		             & (y_offsets_2 == 0)
+		             & (y_offsets_3 == 0)
+		             & (y_offsets_4 == 0)
+		             & (y_offsets_5 == 0)
+		             & (y_offsets_6 == 0)
+		             & (y_offsets_7 == 0)
+		             & (y_offsets_8 == 0)
+		             & (y_offsets_9 == 0)
+		             & (y_offsets_10== 0)
+		             & (y_offsets_11== 0)
+		             & (y_offsets_12== 0)
+		             & (y_offsets_13== 0)
+		             & (y_offsets_14== 0)
+		             & (y_offsets_15== 0);
+	end
 endtask
 
 initial begin
@@ -178,12 +216,13 @@ always @(posedge sysclk) begin
                 end
             end
         end
+		  //Output the check result.
+        offset_all_zero(ram_offset_all_zero);
     end
 end
 
 always @(*) begin
-    reset_check = ram_reset;
-
+    //Output the offsets.
     case (offset_pos_x)
         0 : offset_x = x_offsets_0 ;
         1 : offset_x = x_offsets_1 ;

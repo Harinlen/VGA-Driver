@@ -8,6 +8,7 @@ input wire [3:0] mapper_pixel_y,
 input wire [3:0] offset_x,
 input wire [3:0] offset_y,
 input wire scramble,
+input wire offset_all_zero,
 input wire sysclk,
 output reg [21:0] mapper_display_addr,
 output reg [3:0] offset_pos_x,
@@ -18,12 +19,13 @@ output reg [3:0] ram_write_pos,
 output reg ram_write_horizontal,
 output reg ram_write_increase,
 output reg ram_write,
-output reg ram_reset);
+output reg ram_reset,
+output reg debug_scramble_win);
 
 reg [10:0] display_x, display_y;
 reg [3:0] pixel_x, pixel_y, pixel_offset_x, pixel_offset_y, cursor_x, cursor_y;
 reg [24:0] flash_counter;
-reg flash_negative, instruction_done, is_cursor;
+reg flash_negative, instruction_done, is_cursor, scramble_reset, scramble_win;
 
 initial begin
 	// Clear the done.
@@ -36,6 +38,10 @@ initial begin
 	flash_negative = 0;
 	// Clear the memory reset.
 	ram_reset = 0;
+	// Set the reset state to 1.
+	scramble_reset = 1;
+   // Set the win state to 0.
+   scramble_win = 0;
 end
 
 always @(posedge sysclk) begin
@@ -47,113 +53,131 @@ always @(posedge sysclk) begin
 	end
 	// Set RAM write to 0.
 	ram_write <= 0;
-	// Set RAM reset when the reset instruction is given.
-	ram_reset <= (instruction == 5);
-	// Check instruction running state.
-	if (instruction_done) begin
-		// Only when the instruction set to None, we could accept for the next instruction.
-		if (instruction == 0) begin
-			instruction_done <= 0;
-		end
+	// Check the reset state.
+	if (scramble_reset == 0 && offset_all_zero) begin
+		// When we get here, it means that all the offset has been reset to zero.
+		// From now on, it won't accept any input expect the restart command.
+		//!FIXME: Add check restart command code here.
+        scramble_win <= 1;
 	end
 	else begin
-		// Check the scramble state.
-		if (scramble) begin
-			// Check the instruction according to the instruction.
-			case (instruction)
-				// Ignore for None command.
-				// Move Up
-				1: begin
-					// Set write data.
-					ram_write_pos <= cursor_x;
-					ram_write_horizontal <= 0;
-					ram_write_increase <= 1;
-					// Let it write.
-					ram_write <= 1;
-					//Set done to 1.
-					instruction_done <= 1;
-				end
-				// Move Right
-				2: begin
-					// Set write data.
-					ram_write_pos <= cursor_y;
-					ram_write_horizontal <= 1;
-					ram_write_increase <= 0;
-					// Let it write.
-					ram_write <= 1;
-					//Set done to 1.
-					instruction_done <= 1;
-				end
-				// Move Left
-				3: begin
-					// Set write data.
-					ram_write_pos <= cursor_y;
-					ram_write_horizontal <= 1;
-					ram_write_increase <= 1;
-					// Let it write.
-					ram_write <= 1;
-					//Set done to 1.
-					instruction_done <= 1;
-				end
-				// Move Down
-				4: begin
-					// Set write data.
-					ram_write_pos <= cursor_x;
-					ram_write_horizontal <= 0;
-					ram_write_increase <= 0;
-					// Let it write.
-					ram_write <= 1;
-					//Set done to 1.
-					instruction_done <= 1;
-				end
-			endcase
-		end
-		else begin
-			// Move the cursor according to the insturction.
-			case (instruction)
-				// Ignore for None command.
-				// Move Up
-				1: begin
-					if (cursor_y == 0)
-						cursor_y <= `MAX_IMAGE_SIZE;
-					else
-						cursor_y <= cursor_y - 1'b1;
-					//Set done to 1.
-					instruction_done <= 1;
-				end
-				// Move Right.
-				2: begin
-					if (cursor_x == `MAX_IMAGE_SIZE)
-						cursor_x <= 0;
-					else
-						cursor_x <= cursor_x + 1'b1;
-					//Set done to 1.
-					instruction_done <= 1;
-				end
-				// Move left.
-				3: begin
-					if (cursor_x == 0)
-						cursor_x <= `MAX_IMAGE_SIZE;
-					else
-						cursor_x <= cursor_x - 1'b1;
-					//Set done to 1.
-					instruction_done <= 1;
-				end
-				// Move Down.
-				4: begin
-					if (cursor_y == `MAX_IMAGE_SIZE) 
-						cursor_y <= 0;
-					else
-						cursor_y <= cursor_y + 1'b1;
-					//Set done to 1.
-					instruction_done <= 1;
-				end
-			endcase
-		end
+        // Set RAM reset when the reset instruction is given.
+        ram_reset <= (instruction == 5);
+        // Check instruction running state.
+        if (instruction_done) begin
+            // Only when the instruction set to None, we could accept for the next instruction.
+            if (instruction == 0) begin
+                instruction_done <= 0;
+            end
+        end
+        else begin
+            // Check the scramble state.
+            if (scramble) begin
+                // Check the instruction according to the instruction.
+                case (instruction)
+                    // Ignore for None command.
+                    // Move Up
+                    1: begin
+                        // Set write data.
+                        ram_write_pos <= cursor_x;
+                        ram_write_horizontal <= 0;
+                        ram_write_increase <= 1;
+                        // Let it write.
+                        ram_write <= 1;
+                        // Set the scramble reset to 0.
+                        scramble_reset <= 0;
+                        //Set done to 1.
+                        instruction_done <= 1;
+                    end
+                    // Move Right
+                    2: begin
+                        // Set write data.
+                        ram_write_pos <= cursor_y;
+                        ram_write_horizontal <= 1;
+                        ram_write_increase <= 0;
+                        // Let it write.
+                        ram_write <= 1;
+                        // Set the scramble reset to 0.
+                        scramble_reset <= 0;
+                        //Set done to 1.
+                        instruction_done <= 1;
+                    end
+                    // Move Left
+                    3: begin
+                        // Set write data.
+                        ram_write_pos <= cursor_y;
+                        ram_write_horizontal <= 1;
+                        ram_write_increase <= 1;
+                        // Let it write.
+                        ram_write <= 1;
+                        // Set the scramble reset to 0.
+                        scramble_reset <= 0;
+                        //Set done to 1.
+                        instruction_done <= 1;
+                    end
+                    // Move Down
+                    4: begin
+                        // Set write data.
+                        ram_write_pos <= cursor_x;
+                        ram_write_horizontal <= 0;
+                        ram_write_increase <= 0;
+                        // Let it write.
+                        ram_write <= 1;
+                        // Set the scramble reset to 0.
+                        scramble_reset <= 0;
+                        //Set done to 1.
+                        instruction_done <= 1;
+                    end
+                endcase
+            end
+            else begin
+                // Move the cursor according to the insturction.
+                case (instruction)
+                    // Ignore for None command.
+                    // Move Up
+                    1: begin
+                        if (cursor_y == 0)
+                            cursor_y <= `MAX_IMAGE_SIZE;
+                        else
+                            cursor_y <= cursor_y - 1'b1;
+                        //Set done to 1.
+                        instruction_done <= 1;
+                    end
+                    // Move Right.
+                    2: begin
+                        if (cursor_x == `MAX_IMAGE_SIZE)
+                            cursor_x <= 0;
+                        else
+                            cursor_x <= cursor_x + 1'b1;
+                        //Set done to 1.
+                        instruction_done <= 1;
+                    end
+                    // Move left.
+                    3: begin
+                        if (cursor_x == 0)
+                            cursor_x <= `MAX_IMAGE_SIZE;
+                        else
+                            cursor_x <= cursor_x - 1'b1;
+                        //Set done to 1.
+                        instruction_done <= 1;
+                    end
+                    // Move Down.
+                    4: begin
+                        if (cursor_y == `MAX_IMAGE_SIZE) 
+                            cursor_y <= 0;
+                        else
+                            cursor_y <= cursor_y + 1'b1;
+                        //Set done to 1.
+                        instruction_done <= 1;
+                    end
+                endcase
+            end
+        end
 	end
 end
 
 always @(*) begin
+	debug_scramble_win = scramble_win;
 	// Get the pixel position on the display.
 	display_x = display_addr[21:11];
 	display_y = display_addr[10:0];
@@ -176,10 +200,20 @@ always @(*) begin
 		// Set the pixel addr.
 		pixel_addr = {pixel_y, pixel_x};
 		// Set the display pixel data.
-		if (is_cursor)
-			display_data = ~pixel_data;
-		else
-			display_data = pixel_data;
+      // Check the win state.
+      if (scramble_win) begin
+          // Check the flash negative.
+          if (flash_negative)
+              display_data = ~pixel_data;
+          else
+              display_data = pixel_data;
+      end
+      else begin
+          if (is_cursor)
+              display_data = ~pixel_data;
+          else
+              display_data = pixel_data;
+      end
 	end
 end
 

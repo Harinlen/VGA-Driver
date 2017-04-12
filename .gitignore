@@ -62,6 +62,7 @@ webtalk_pn.xml
 vgadriver.twr
 vgadriver.twx
 vgadriver.ut
+vgadriver_bitgen.xwbt
 
 # ISE Project Reports.
 TB_vgadriver_envsettings.html

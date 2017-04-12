@@ -48,7 +48,7 @@ wire [7:0] func3_vram_addr_in;
 wire [4:0] func3_keys;
 wire [3:0] func3_instruction, func3_mapper_x_out, func3_mapper_y_out, func3_offset_x_in, func3_offset_y_in, func3_offset_x_out, func3_offset_y_out, func3_ram_write_pos;
 wire [2:0] func3_color_out, func3_vram_color_out, func3_vram_index_in;
-wire func3_scramble, func3_ram_write_horizontal, func3_ram_write_increase, func3_ram_write, func3_ram_reset;
+wire func3_scramble, func3_ram_write_horizontal, func3_ram_write_increase, func3_ram_write, func3_ram_reset, fun3_offset_all_zero;
 
 // VGA port.
 wire [2:0] vga_color;
@@ -160,11 +160,12 @@ f3_ram func3_ram(
 .sysclk(sysclk),
 .offset_x(func3_offset_x_out),
 .offset_y(func3_offset_y_out),
-.reset_check(ins1));
+.ram_offset_all_zero(fun3_offset_all_zero));
 
 f3_gpu func3_gpu(
 .instruction(func3_instruction),
 .scramble(func3_scramble),
+.offset_all_zero(fun3_offset_all_zero),
 .display_addr(func3_addr_in),
 .pixel_data(func3_vram_color_out),
 .mapper_pixel_x(func3_mapper_x_out),
@@ -181,7 +182,8 @@ f3_gpu func3_gpu(
 .ram_write_horizontal(func3_ram_write_horizontal),
 .ram_write_increase(func3_ram_write_increase),
 .ram_write(func3_ram_write),
-.ram_reset(func3_ram_reset));
+.ram_reset(func3_ram_reset),
+.debug_scramble_win(ins1));
 
 // Image ROM chip.
 img_vrom image_rom(
