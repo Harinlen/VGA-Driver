@@ -1,7 +1,9 @@
 module f2_keyproc(
 input wire [3:0] func2_keys,
+input wire func2_auto_switch,
 input wire sysclk,
-output reg [2:0] instruction);
+output reg [2:0] instruction,
+output reg auto_switch);
 
 //Defines the instruction for function 2.
 // 0 = None
@@ -16,6 +18,8 @@ initial begin
 end
 
 always @(*) begin
+	//Sync the auto switch.
+	auto_switch = func2_auto_switch;
 	// Check all the keys and translate to func2 GPU instruction.
 	if (func2_keys[3]) begin
 		instruction = 3'd2;

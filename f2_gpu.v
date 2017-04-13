@@ -5,6 +5,7 @@ input wire [21:0] display_addr,
 input wire [2:0] pixel_data,
 input wire [3:0] mapper_pixel_x,
 input wire [3:0] mapper_pixel_y,
+input wire auto_switch,
 input wire sysclk,
 output reg [21:0] mapper_display_addr,
 output reg [7:0] pixel_addr,
@@ -19,8 +20,8 @@ reg [1:0] trans_mode;
 reg [7:0] anime_pixel_index;
 reg [2:0] current_image;
 reg [2:0] command;
-reg [18:0] delay_counter;
-reg state, negative, done_flag;
+reg [15:0] delay_counter;
+reg negative, done_flag;
 
 initial begin
 	// Display parameter
@@ -28,8 +29,6 @@ initial begin
 	display_y = 0;
 	pixel_x = 0;
 	pixel_y = 0;
-	// Reset working state.
-	state = 0;
 	// Reset the transform mode.
 	trans_mode = 2'b00;
 	// Reset the negative state.
@@ -48,103 +47,67 @@ end
 
 always @(posedge sysclk) begin
 	// Check the running state first.
-	if (state) begin
+	if (auto_switch) begin
 		// An instruction is running, checking the delay counter.
 		if (delay_counter == 1'b0) begin
-			// Run the counter.
-			case (command)
-				// Moving backward.
-				1: begin
-					anime_pixel_index <= anime_pixel_index - 1;
-					// Check the anime pixel index.
-					if (anime_pixel_index == 8'h00) begin
-						// Change state to none.
-						state <= 0;
-						anime_pixel_index <= 8'hFF;
-					end
-				end
-				//Moving forward.
-				2: begin
-					anime_pixel_index <= anime_pixel_index + 1;
-					// Check the anime pixel index.
-					if (anime_pixel_index == 8'hFF) begin
-						// Change state to none.
-						state <= 0;
-						anime_pixel_index <= 8'h00;
-					end
-				end
-			endcase
+			//Check the image index, move to the next image.
+			if (current_image == `MAX_IMAGE_INDEX)
+				current_image <= 0;
+			else
+				current_image <= current_image + 1;
 		end
 		// Increase the delay counter.
 		delay_counter <= delay_counter + 1'b1;
 	end
+	// Check the command.
+	if(instruction == 0) begin
+		// Reset the done flag.
+		done_flag <= 0;
+	end
 	else begin
-		// Clear the state as default.
-		state <= 0;
-		// Check the command.
-		if(instruction == 0) begin
-			// Save the command.
-			command <= 0;
-			// Reset the done flag.
-			done_flag <= 0;
-		end
-		else begin
-			if (done_flag == 0) begin
-				// A new command should be set, save the command.
-				command <= instruction;
-				// Check the command
-				case (instruction)
-					1: begin //Move forward.
-						// Reset rotation.
-						trans_mode <= 0;
-						// Reset the nagative.
-						negative <= 0;
+		if (done_flag == 0) begin
+			// Check the command
+			case (instruction)
+				1: begin //Move forward.
+					// Check the auto switch state.
+					if (auto_switch == 0) begin
 						// Check the image index, move to the previous image.
 						if (current_image == 0)
 							current_image <= `MAX_IMAGE_INDEX;
 						else
 							current_image <= current_image - 1;
-						// Reset the animation.
-						anime_pixel_index <= 8'hFF;
-						// Set the state.
-						state <= 1;
 						// Set the done flag.
 						done_flag <= 1;
 					end
-					2: begin // Move backward.
-						// Reset rotation.
-						trans_mode <= 0;
-						// Reset the nagative.
-						negative <= 0;
+				end
+				2: begin // Move backward.
+					// Check the auto switch state.
+					if (auto_switch == 0) begin
 						//Check the image index, move to the next image.
 						if (current_image == `MAX_IMAGE_INDEX)
 							current_image <= 0;
 						else
 							current_image <= current_image + 1;
-						// Reset the animation.
-						anime_pixel_index <= 8'h00;
-						// Set the state.
-						state <= 1;
 						// Set the done flag.
 						done_flag <= 1;
 					end
-					3: begin // Rotate.
-						//Reset rotation.
-						if(trans_mode == 3)
-							trans_mode <= 0;
-						else
-							trans_mode <= trans_mode + 1;
-						// Set the done flag.
-						done_flag <= 1;
-					end
-					4: begin // Negative
-						// Change the negative state.
-						negative <= ~negative;
-						// Set the done flag.
-						done_flag <= 1;
-					end
-				endcase
-			end
+				end
+				3: begin // Rotate.
+					//Reset rotation.
+					if(trans_mode == 3)
+						trans_mode <= 0;
+					else
+						trans_mode <= trans_mode + 1;
+					// Set the done flag.
+					done_flag <= 1;
+				end
+				4: begin // Negative
+					// Change the negative state.
+					negative <= ~negative;
+					// Set the done flag.
+					done_flag <= 1;
+				end
+			endcase
 		end
 	end
 end
@@ -171,35 +134,8 @@ always @(*) begin
 			2: pixel_addr = {4'd`MAX_IMAGE_SIZE - pixel_y, 4'd`MAX_IMAGE_SIZE - pixel_x};
 			3: pixel_addr = {4'd`MAX_IMAGE_SIZE - pixel_x, pixel_y};
 		endcase
-		
-		// Apply animation.
-		if (state)
-			if (pixel_addr < anime_pixel_index)
-				// Previous image
-				if (command == 1)
-					// Move previous, its image should be the next one.
-					if (current_image == `MAX_IMAGE_INDEX)
-						image_index = 0;
-					else
-						image_index = current_image + 1;
-				else
-					// Current image.
-					image_index = current_image;
-			else
-				// Next image
-				if (command == 2)
-					// Move next, its pirevous image should be the previous one.
-					if (current_image == 0)
-						image_index = `MAX_IMAGE_INDEX;
-					else
-						image_index = current_image - 1;
-				else
-					// Current image.
-					image_index = current_image;
-		else
-			// Always current image.
-			image_index = current_image;
-		
+		// Always current image.
+		image_index = current_image;
 		// Check negative.
 		if (negative)
 			//Set the invert display pixel data.
