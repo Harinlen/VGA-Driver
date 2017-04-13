@@ -20,12 +20,15 @@ output reg ram_write_horizontal,
 output reg ram_write_increase,
 output reg ram_write,
 output reg ram_reset,
-output reg debug_scramble_win);
+output reg debug_scramble_win,
+output reg debug_scramble,
+output reg debug_scramble_reset);
 
 reg [10:0] display_x, display_y;
 reg [3:0] pixel_x, pixel_y, pixel_offset_x, pixel_offset_y, cursor_x, cursor_y;
 reg [24:0] flash_counter;
-reg flash_negative, instruction_done, is_cursor, scramble_reset, scramble_win;
+reg [1:0] win_check_delay;
+reg flash_negative, instruction_done, is_cursor, scramble_reset, scramble_win, writing_RAM;
 
 initial begin
 	// Clear the done.
@@ -42,6 +45,8 @@ initial begin
 	scramble_reset = 1;
    // Set the win state to 0.
    scramble_win = 0;
+	// Clear the win check delay.
+	win_check_delay = 2'b0;
 end
 
 always @(posedge sysclk) begin
@@ -51,14 +56,38 @@ always @(posedge sysclk) begin
 	if (flash_counter == 25'b0) begin
 		flash_negative <= ~flash_negative;
 	end
-	// Set RAM write to 0.
-	ram_write <= 0;
-	// Check the reset state.
-	if (scramble_reset == 0 && offset_all_zero) begin
-		// When we get here, it means that all the offset has been reset to zero.
-		// From now on, it won't accept any input expect the restart command.
-		//!FIXME: Add check restart command code here.
-      scramble_win <= 1;
+	// Check the scramble state.
+	if (writing_RAM) begin
+		// Set RAM write to 0.
+		ram_write <= 0;
+		// Set the scramble reset to 0.
+		scramble_reset <= 0;
+		// Check the delay is 0 or not.
+		if (win_check_delay == 2'b0) begin
+			// Reset the RAM writing state to 0.
+			writing_RAM <= 0;
+			// Has already wait for several clocks, we could check the offset now.
+			// Check the reset state.
+			if (offset_all_zero) begin
+				// When we get here, it means that all the offset has been reset to zero.
+				// From now on, it won't accept any input expect the restart command.
+				scramble_win <= 1;
+			end
+		end
+		else begin
+			// Increase the delay.
+			win_check_delay <= win_check_delay + 2'b1;
+		end
+	end
+	// Check the scramble win state.
+	if (scramble_win) begin
+        // Check the reset command. If not, ignore all the other instructions.
+		  if (instruction == 5) begin
+            // Set RAM reset when the reset instruction is given.
+            ram_reset <= 1;
+				// Clear the winning state.
+				scramble_win <= 0;
+		  end
 	end
 	else begin
         // Set RAM reset when the reset instruction is given.
@@ -67,12 +96,14 @@ always @(posedge sysclk) begin
         if (instruction_done) begin
             // Only when the instruction set to None, we could accept for the next instruction.
             if (instruction == 0) begin
+				     // Clear the done flag.
                 instruction_done <= 0;
             end
         end
         else begin
             // Check the scramble state.
             if (scramble) begin
+					  // Scramble mode is on, we need to move the offset.
                 // Check the instruction according to the instruction.
                 case (instruction)
                     // Ignore for None command.
@@ -84,8 +115,10 @@ always @(posedge sysclk) begin
                         ram_write_increase <= 1;
                         // Let it write.
                         ram_write <= 1;
-                        // Set the scramble reset to 0.
-                        scramble_reset <= 0;
+								// Backup the RAM writing state.
+								writing_RAM <= 1;
+								// Delay the winning check delay.
+								win_check_delay <= 2'b1;
                         //Set done to 1.
                         instruction_done <= 1;
                     end
@@ -97,8 +130,10 @@ always @(posedge sysclk) begin
                         ram_write_increase <= 0;
                         // Let it write.
                         ram_write <= 1;
-                        // Set the scramble reset to 0.
-                        scramble_reset <= 0;
+								// Backup the RAM writing state.
+								writing_RAM <= 1;
+								// Delay the winning check delay.
+								win_check_delay <= 2'b1;
                         //Set done to 1.
                         instruction_done <= 1;
                     end
@@ -110,8 +145,10 @@ always @(posedge sysclk) begin
                         ram_write_increase <= 1;
                         // Let it write.
                         ram_write <= 1;
-                        // Set the scramble reset to 0.
-                        scramble_reset <= 0;
+								// Backup the RAM writing state.
+								writing_RAM <= 1;
+								// Delay the winning check delay.
+								win_check_delay <= 2'b1;
                         //Set done to 1.
                         instruction_done <= 1;
                     end
@@ -123,8 +160,10 @@ always @(posedge sysclk) begin
                         ram_write_increase <= 0;
                         // Let it write.
                         ram_write <= 1;
-                        // Set the scramble reset to 0.
-                        scramble_reset <= 0;
+								// Backup the RAM writing state.
+								writing_RAM <= 1;
+								// Delay the winning check delay.
+								win_check_delay <= 2'b1;
                         //Set done to 1.
                         instruction_done <= 1;
                     end
@@ -178,6 +217,8 @@ end
 
 always @(*) begin
 	debug_scramble_win = scramble_win;
+	debug_scramble = scramble;
+	debug_scramble_reset = scramble_reset;
 	// Get the pixel position on the display.
 	display_x = display_addr[21:11];
 	display_y = display_addr[10:0];

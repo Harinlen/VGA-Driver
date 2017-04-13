@@ -43,6 +43,8 @@ reg [3:0] x_offsets_0,
           y_offsets_13,
           y_offsets_14,
           y_offsets_15;
+
+reg offset_all_zero;
           
 task reset_ram;
     begin
@@ -78,45 +80,9 @@ task reset_ram;
         y_offsets_13 <= 0;
         y_offsets_14 <= 0;
         y_offsets_15 <= 0;
+		  //Because it is reset, All zero will be false.
+		  offset_all_zero <= 0;
     end
-endtask
-
-task offset_all_zero;
-	output is_all_zero;
-	begin
-		is_all_zero <= (x_offsets_0 == 0)
-		             & (x_offsets_1 == 0)
-		             & (x_offsets_2 == 0)
-		             & (x_offsets_3 == 0)
-		             & (x_offsets_4 == 0)
-		             & (x_offsets_5 == 0)
-		             & (x_offsets_6 == 0)
-		             & (x_offsets_7 == 0)
-		             & (x_offsets_8 == 0)
-		             & (x_offsets_9 == 0)
-		             & (x_offsets_10== 0)
-		             & (x_offsets_11== 0)
-		             & (x_offsets_12== 0)
-		             & (x_offsets_13== 0)
-		             & (x_offsets_14== 0)
-		             & (x_offsets_15== 0)
-		             & (y_offsets_0 == 0)
-		             & (y_offsets_1 == 0)
-		             & (y_offsets_2 == 0)
-		             & (y_offsets_3 == 0)
-		             & (y_offsets_4 == 0)
-		             & (y_offsets_5 == 0)
-		             & (y_offsets_6 == 0)
-		             & (y_offsets_7 == 0)
-		             & (y_offsets_8 == 0)
-		             & (y_offsets_9 == 0)
-		             & (y_offsets_10== 0)
-		             & (y_offsets_11== 0)
-		             & (y_offsets_12== 0)
-		             & (y_offsets_13== 0)
-		             & (y_offsets_14== 0)
-		             & (y_offsets_15== 0);
-	end
 endtask
 
 initial begin
@@ -131,7 +97,6 @@ always @(posedge sysclk) begin
         reset_ram();
     end
     else begin
-		  ram_offset_all_zero <= 0;
         if (ram_write) begin
             if (ram_write_horizontal) begin
                 // All y_offset, for horizontal move.
@@ -220,8 +185,40 @@ always @(posedge sysclk) begin
                 end
             end
         end
-		  //Output the check result.
-        offset_all_zero(ram_offset_all_zero);
+		else begin
+            offset_all_zero <= (x_offsets_0 == 0)
+                             & (x_offsets_1 == 0)
+                             & (x_offsets_2 == 0)
+                             & (x_offsets_3 == 0)
+                             & (x_offsets_4 == 0)
+                             & (x_offsets_5 == 0)
+                             & (x_offsets_6 == 0)
+                             & (x_offsets_7 == 0)
+                             & (x_offsets_8 == 0)
+                             & (x_offsets_9 == 0)
+                             & (x_offsets_10== 0)
+                             & (x_offsets_11== 0)
+                             & (x_offsets_12== 0)
+                             & (x_offsets_13== 0)
+                             & (x_offsets_14== 0)
+                             & (x_offsets_15== 0)
+                             & (y_offsets_0 == 0)
+                             & (y_offsets_1 == 0)
+                             & (y_offsets_2 == 0)
+                             & (y_offsets_3 == 0)
+                             & (y_offsets_4 == 0)
+                             & (y_offsets_5 == 0)
+                             & (y_offsets_6 == 0)
+                             & (y_offsets_7 == 0)
+                             & (y_offsets_8 == 0)
+                             & (y_offsets_9 == 0)
+                             & (y_offsets_10== 0)
+                             & (y_offsets_11== 0)
+                             & (y_offsets_12== 0)
+                             & (y_offsets_13== 0)
+                             & (y_offsets_14== 0)
+                             & (y_offsets_15== 0);
+		end
     end
 end
 
@@ -263,6 +260,8 @@ always @(*) begin
         14: offset_y = y_offsets_14;
         15: offset_y = y_offsets_15;
     endcase
+	 //Update the all zero function.
+	 ram_offset_all_zero = offset_all_zero;
 end
 
 endmodule

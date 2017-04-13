@@ -183,7 +183,9 @@ f3_gpu func3_gpu(
 .ram_write_increase(func3_ram_write_increase),
 .ram_write(func3_ram_write),
 .ram_reset(func3_ram_reset),
-.debug_scramble_win(ins1));
+.debug_scramble_win(ins1),
+.debug_scramble(ins2),
+.debug_scramble_reset(ins3));
 
 // Image ROM chip.
 img_vrom image_rom(
