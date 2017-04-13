@@ -34,7 +34,8 @@ wire func1_write;
 // Function 2 chips.
 wire [21:0] func2_addr_in, func2_mapper_addr_in;
 wire [7:0] func2_vram_addr_in;
-wire [3:0] func2_keys, func2_mapper_x_out, func2_mapper_y_out;
+wire [4:0] func2_keys;
+wire [3:0] func2_mapper_x_out, func2_mapper_y_out;
 wire [2:0] func2_instruction, func2_color_out, func2_vram_color_out, func2_vram_index_in;
 
 // Function 3 chips.
