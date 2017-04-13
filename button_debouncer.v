@@ -4,13 +4,14 @@ input wire clk,
 input wire clr,
 output wire outp);
 
+// Delay data save register.
 reg delay1;
 reg delay2;
 reg delay3;
-
+// Counter and beat generator.
 reg [17:0] count;
 reg beat;
-
+// New slower checking clock.
 wire slower_clk;
 
 initial begin

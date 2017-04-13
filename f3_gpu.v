@@ -19,10 +19,7 @@ output reg [3:0] ram_write_pos,
 output reg ram_write_horizontal,
 output reg ram_write_increase,
 output reg ram_write,
-output reg ram_reset,
-output reg debug_scramble_win,
-output reg debug_scramble,
-output reg debug_scramble_reset);
+output reg ram_reset);
 
 reg [10:0] display_x, display_y;
 reg [3:0] pixel_x, pixel_y, pixel_offset_x, pixel_offset_y, cursor_x, cursor_y;
@@ -216,9 +213,6 @@ always @(posedge sysclk) begin
 end
 
 always @(*) begin
-	debug_scramble_win = scramble_win;
-	debug_scramble = scramble;
-	debug_scramble_reset = scramble_reset;
 	// Get the pixel position on the display.
 	display_x = display_addr[21:11];
 	display_y = display_addr[10:0];

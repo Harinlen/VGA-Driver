@@ -16,12 +16,7 @@ output wire VGA_R,
 output wire VGA_G,
 output wire VGA_B,
 output wire VGA_HS,
-output wire VGA_VS,
-output wire ins1,
-output wire ins2,
-output wire ins3,
-output wire ins4,
-output wire ins5);
+output wire VGA_VS);
 
 // I/O wires.
 wire East_deb, West_deb, North_deb, South_deb, func_switch_deb;
@@ -47,7 +42,7 @@ wire [21:0] func3_addr_in, func3_mapper_addr_in;
 wire [7:0] func3_vram_addr_in;
 wire [4:0] func3_keys;
 wire [3:0] func3_instruction, func3_mapper_x_out, func3_mapper_y_out, func3_offset_x_in, func3_offset_y_in, func3_offset_x_out, func3_offset_y_out, func3_ram_write_pos;
-wire [2:0] func3_color_out, func3_vram_color_out, func3_vram_index_in;
+wire [2:0] func3_color_out, func3_vram_color_out;
 wire func3_scramble, func3_ram_write_horizontal, func3_ram_write_increase, func3_ram_write, func3_ram_reset, fun3_offset_all_zero;
 
 // VGA port.
@@ -182,10 +177,7 @@ f3_gpu func3_gpu(
 .ram_write_horizontal(func3_ram_write_horizontal),
 .ram_write_increase(func3_ram_write_increase),
 .ram_write(func3_ram_write),
-.ram_reset(func3_ram_reset),
-.debug_scramble_win(ins1),
-.debug_scramble(ins2),
-.debug_scramble_reset(ins3));
+.ram_reset(func3_ram_reset));
 
 // Image ROM chip.
 img_vrom image_rom(
