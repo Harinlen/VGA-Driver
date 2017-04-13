@@ -11,7 +11,7 @@ input wire change,
 input wire sysclk,
 output reg [1:0] func_index,
 output reg [3:0] func1_instruction,
-output reg [3:0] func2_instruction,
+output reg [4:0] func2_instruction,
 output reg [4:0] func3_instruction,
 output reg reset);
 
@@ -52,7 +52,7 @@ always @(*) begin
 			func1_instruction = 4'd0;
 			//Output function 2 instruction.
 			// Format is East, West, North, South button.
-			func2_instruction = {{{East, West}, North}, South};
+			func2_instruction = {SW3, {{{East, West}, North}, South}};
 			// Clear the function 3.
 			func3_instruction = 5'd0;
 		end
