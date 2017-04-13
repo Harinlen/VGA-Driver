@@ -1,20 +1,12 @@
 # FPGA Assignment: some fun with FPGA VGA output.
 
-Just an average guy who serves an average assignment.
+*Just an average guy who serves an average assignment.*
 
-![Build Pass](https://img.shields.io/badge/build-success-brightgreen.svg)  ![Progress](http://progressed.io/bar/95?title=Progress)
+![Build Pass](https://img.shields.io/badge/build-success-brightgreen.svg)
 
 ## You have to know
 
 This project is designed based on the requirement for function 4, which will use the container framework to organize function 1 to function 3. If you have no idea with the source code, please check the [Documentation](doc/Home.md) to get start with.
-
-## Current Stage
-
- * Function 1 - Complete
- * Function 2 - Complete
- * Function 3 - Complete
- * Function 4 - Complete
- * Remove Warnings - In progressing
 
 ## Preparations
 
